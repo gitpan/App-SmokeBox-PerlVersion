@@ -20,4 +20,4 @@ requires:
 resources:
   homepage: http://github.com/bingos/app-smokebox-perlversion/tree
   repository: git://github.com/bingos/app-smokebox-perlversion.git
-version: 0.04
+version: 0.06

@@ -1,4 +1,15 @@
 ==============================
+2010-09-21 20:58:04 +0100 0.06
+==============================
+
+  commit 3a045e903d1fc3de7dad798d7f732a5e1148cf88
+  Author: Chris 'BinGOs' Williams <chris@bingosnet.co.uk>
+  Date:   Tue Sep 21 20:58:04 2010 +0100
+  
+    Amended the regex to take into account blead git-built perls, thanks
+    to Andreas 
+
+==============================
 2010-09-21 12:57:20 +0100 0.04
 ==============================
 
