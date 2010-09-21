@@ -1,6 +1,6 @@
 package App::SmokeBox::PerlVersion;
 BEGIN {
-  $App::SmokeBox::PerlVersion::VERSION = '0.02';
+  $App::SmokeBox::PerlVersion::VERSION = '0.04';
 }
 
 #ABSTRACT: SmokeBox helper module to determine perl version
@@ -81,7 +81,7 @@ App::SmokeBox::PerlVersion - SmokeBox helper module to determine perl version
 
 =head1 VERSION
 
-version 0.02
+version 0.04
 
 =head1 SYNOPSIS
 
