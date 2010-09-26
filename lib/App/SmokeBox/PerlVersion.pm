@@ -1,6 +1,6 @@
 package App::SmokeBox::PerlVersion;
 BEGIN {
-  $App::SmokeBox::PerlVersion::VERSION = '0.06';
+  $App::SmokeBox::PerlVersion::VERSION = '0.08';
 }
 
 #ABSTRACT: SmokeBox helper module to determine perl version
@@ -15,8 +15,28 @@ sub version {
   my %args    = @_;
   $args{ lc $_ } = delete $args{$_} for keys %args;
   $args{perl} = $^X unless $args{perl} and can_run( $args{perl} );
-  $args{session} = $poe_kernel->get_active_session()
-    unless $args{session};
+
+  SWITCH: {
+    unless ( $args{session} ) {
+      my $session = $poe_kernel->get_active_session();
+      if ( $session == $poe_kernel ) {
+        warn "Not called from another POE session and 'session' wasn't set\n";
+        return;
+      }
+      $args{session} = $session->ID();
+      last SWITCH;
+    }
+    if ( $args{session} and !$args{session}->isa('POE::Session::AnonEvent') ) {
+      if ( my $session = $poe_kernel->alias_resolve( $args{session} ) ) {
+        $args{session} = $session->ID();
+        last SWITCH;
+      }
+      else {
+        warn "Could not resolve 'session' to a valid POE Session\n";
+        return;
+      }
+    }
+  }
 
   unless ( $args{event} or $args{session}->isa('POE::Session::AnonEvent') ) {
      warn "You must provide response 'event' or a postback in 'session'\n";
@@ -37,6 +57,8 @@ sub version {
 
 sub _start {
   my ($kernel,$self) = @_[KERNEL,OBJECT];
+  $kernel->refcount_increment( $self->{session}, __PACKAGE__ ) 
+    unless ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent');
   $self->{pid} = POE::Quickie->run(
     Program     => [ $self->{perl}, '-v' ],
     StdoutEvent => '_stdout',
@@ -59,11 +81,12 @@ sub _finished {
   my $return = { };
   $return->{exitcode} = $code;
   $return->{$_} = $self->{$_} for qw[version archname context];
-  if ( $self->{session}->isa('POE::Session::AnonEvent') ) {
+  if ( ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent') ) {
     $self->{session}->( $return );
   }
   else {
     $kernel->post( $self->{session}, $self->{event}, $return );
+    $kernel->refcount_decrement( $self->{session}, __PACKAGE__ );
   }
   return;
 }
@@ -81,7 +104,7 @@ App::SmokeBox::PerlVersion - SmokeBox helper module to determine perl version
 
 =head1 VERSION
 
-version 0.06
+version 0.08
 
 =head1 SYNOPSIS
 
