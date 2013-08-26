@@ -3,25 +3,25 @@ NAME
     version
 
 VERSION
-    version 0.08
+    version 0.10
 
 SYNOPSIS
       use strict;
       use warnings;
       use POE;
       use App::SmokeBox::PerlVersion;
-  
+
       my $perl = shift || $^X;
-  
+
       POE::Session->create(
         package_states => [
           main => [qw(_start _result)],
         ],
       );
-  
+
       $poe_kernel->run();
       exit 0;
-  
+
       sub _start {
         App::SmokeBox::PerlVersion->version(
           perl => $perl,
@@ -29,7 +29,7 @@ SYNOPSIS
         );
         return;
       }
-  
+
       sub _result {
         my $href = $_[ARG0];
         print "Perl version: ", $href->{version}, "\n";
@@ -74,7 +74,7 @@ AUTHOR
     Chris Williams <chris@bingosnet.co.uk>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2010 by Chris Williams.
+    This software is copyright (c) 2013 by Chris Williams.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.

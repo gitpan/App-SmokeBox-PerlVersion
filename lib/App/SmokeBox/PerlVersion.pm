@@ -1,6 +1,6 @@
 package App::SmokeBox::PerlVersion;
-BEGIN {
-  $App::SmokeBox::PerlVersion::VERSION = '0.08';
+{
+  $App::SmokeBox::PerlVersion::VERSION = '0.10';
 }
 
 #ABSTRACT: SmokeBox helper module to determine perl version
@@ -57,10 +57,10 @@ sub version {
 
 sub _start {
   my ($kernel,$self) = @_[KERNEL,OBJECT];
-  $kernel->refcount_increment( $self->{session}, __PACKAGE__ ) 
+  $kernel->refcount_increment( $self->{session}, __PACKAGE__ )
     unless ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent');
   $self->{pid} = POE::Quickie->run(
-    Program     => [ $self->{perl}, '-v' ],
+    Program     => [ $self->{perl}, '-V:version', '-V:archname' ],
     StdoutEvent => '_stdout',
     ExitEvent   => '_finished',
   );
@@ -69,10 +69,8 @@ sub _start {
 
 sub _stdout {
   my ($self,$in,$pid) = @_[OBJECT,ARG0,ARG1];
-  # This is perl, v5.6.2 built for i386-netbsd-thread-multi-64int
-  return unless my ($vers,$arch) = $in =~ /^This is perl.+?v([0-9\.]+).+?built for\s+(\S+)$/;
-  $self->{version} = $vers;
-  $self->{archname} = $arch;
+  return unless my ($var,$value) = $in =~ m!^(version|archname)\s*\=\s*'(.+?)'!;
+  $self->{$var} = $value;
   return;
 }
 
@@ -91,11 +89,10 @@ sub _finished {
   return;
 }
 
-
 q[This is true];
 
-
 __END__
+
 =pod
 
 =head1 NAME
@@ -104,7 +101,7 @@ App::SmokeBox::PerlVersion - SmokeBox helper module to determine perl version
 
 =head1 VERSION
 
-version 0.08
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -112,18 +109,18 @@ version 0.08
   use warnings;
   use POE;
   use App::SmokeBox::PerlVersion;
-  
+
   my $perl = shift || $^X;
-  
+
   POE::Session->create(
     package_states => [
       main => [qw(_start _result)],
     ],
   );
-  
+
   $poe_kernel->run();
   exit 0;
-  
+
   sub _start {
     App::SmokeBox::PerlVersion->version(
       perl => $perl,
@@ -131,7 +128,7 @@ version 0.08
     );
     return;
   }
-  
+
   sub _result {
     my $href = $_[ARG0];
     print "Perl version: ", $href->{version}, "\n";
@@ -183,10 +180,9 @@ Chris Williams <chris@bingosnet.co.uk>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by Chris Williams.
+This software is copyright (c) 2013 by Chris Williams.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
