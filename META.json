@@ -4,7 +4,7 @@
       "Chris Williams <chris@bingosnet.co.uk>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.132140",
+   "generated_by" : "Dist::Zilla version 4.300038, CPAN::Meta::Converter version 2.132510",
    "license" : [
       "perl_5"
    ],
@@ -30,16 +30,15 @@
          "requires" : {
             "IPC::Cmd" : "0",
             "POE" : "1.293",
-            "POE::Quickie" : "0.11",
+            "POE::Wheel::Run" : "0",
             "perl" : "5.006002"
          }
       },
       "test" : {
          "requires" : {
-            "File::Spec" : "0",
             "IO::Handle" : "0",
             "IPC::Open3" : "0",
-            "Test::More" : "0.88"
+            "Test::More" : "0"
          }
       }
    },
@@ -52,6 +51,6 @@
          "web" : "https://github.com/bingos/app-smokebox-perlversion"
       }
    },
-   "version" : "0.10"
+   "version" : "0.12"
 }
 

@@ -1,6 +1,6 @@
 package App::SmokeBox::PerlVersion;
 {
-  $App::SmokeBox::PerlVersion::VERSION = '0.10';
+  $App::SmokeBox::PerlVersion::VERSION = '0.12';
 }
 
 #ABSTRACT: SmokeBox helper module to determine perl version
@@ -8,7 +8,7 @@ package App::SmokeBox::PerlVersion;
 use strict;
 use warnings;
 use IPC::Cmd qw[can_run];
-use POE qw[Quickie];
+use POE qw[Wheel::Run];
 
 sub version {
   my $package = shift;
@@ -59,11 +59,12 @@ sub _start {
   my ($kernel,$self) = @_[KERNEL,OBJECT];
   $kernel->refcount_increment( $self->{session}, __PACKAGE__ )
     unless ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent');
-  $self->{pid} = POE::Quickie->run(
+  $self->{child} = POE::Wheel::Run->new(
     Program     => [ $self->{perl}, '-V:version', '-V:archname' ],
     StdoutEvent => '_stdout',
-    ExitEvent   => '_finished',
   );
+  $self->{pid} = $self->{child}->PID;
+  $kernel->sig_child( $self->{pid}, '_finished' );
   return;
 }
 
@@ -75,7 +76,9 @@ sub _stdout {
 }
 
 sub _finished {
-  my ($kernel,$self,$code,$pid) = @_[KERNEL,OBJECT,ARG0,ARG1];
+  my ($kernel,$self,$pid,$code) = @_[KERNEL,OBJECT,ARG1,ARG2];
+  delete $self->{child};
+  delete $self->{pid};
   my $return = { };
   $return->{exitcode} = $code;
   $return->{$_} = $self->{$_} for qw[version archname context];
@@ -101,7 +104,7 @@ App::SmokeBox::PerlVersion - SmokeBox helper module to determine perl version
 
 =head1 VERSION
 
-version 0.10
+version 0.12
 
 =head1 SYNOPSIS
 

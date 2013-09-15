@@ -22,15 +22,14 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "IPC::Cmd" => 0,
     "POE" => "1.293",
-    "POE::Quickie" => "0.11"
+    "POE::Wheel::Run" => 0
   },
   "TEST_REQUIRES" => {
-    "File::Spec" => 0,
     "IO::Handle" => 0,
     "IPC::Open3" => 0,
-    "Test::More" => "0.88"
+    "Test::More" => 0
   },
-  "VERSION" => "0.10",
+  "VERSION" => "0.12",
   "test" => {
     "TESTS" => "t/*.t"
   }
