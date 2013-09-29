@@ -3,7 +3,7 @@ NAME
     version
 
 VERSION
-    version 0.14
+    version 0.16
 
 SYNOPSIS
       use strict;
@@ -34,13 +34,14 @@ SYNOPSIS
         my $href = $_[ARG0];
         print "Perl version: ", $href->{version}, "\n";
         print "Built for:    ", $href->{archname}, "\n";
+        print "OS Version:   ", $href->{osvers}, "\n";
         return;
       }
 
 DESCRIPTION
     App::SmokeBox::PerlVersion is a simple helper module for
-    App::SmokeBox::Mini and minismokebox that determines and version and
-    architecture of a given "perl" executable.
+    App::SmokeBox::Mini and minismokebox that determines version,
+    architecture and OS version of a given "perl" executable.
 
 CONSTRUCTOR
     "version"
@@ -68,6 +69,7 @@ RESPONSE
       'exitcode', the exit code of the perl executable that was run;
       'version', the perl version string;
       'archname', the perl archname string;
+      'osvers', the OS version string;
       'context', whatever was passed to version();
 
 AUTHOR

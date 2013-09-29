@@ -1,6 +1,6 @@
 package App::SmokeBox::PerlVersion;
 {
-  $App::SmokeBox::PerlVersion::VERSION = '0.14';
+  $App::SmokeBox::PerlVersion::VERSION = '0.16';
 }
 
 #ABSTRACT: SmokeBox helper module to determine perl version
@@ -60,7 +60,7 @@ sub _start {
   $kernel->refcount_increment( $self->{session}, __PACKAGE__ )
     unless ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent');
   $self->{child} = POE::Wheel::Run->new(
-    Program     => [ $self->{perl}, '-V:version', '-V:archname' ],
+    Program     => [ $self->{perl}, '-V:version', '-V:archname', '-V:osvers' ],
     StdoutEvent => '_stdout',
   );
   $self->{pid} = $self->{child}->PID;
@@ -70,7 +70,7 @@ sub _start {
 
 sub _stdout {
   my ($self,$in,$pid) = @_[OBJECT,ARG0,ARG1];
-  return unless my ($var,$value) = $in =~ m!^(version|archname)\s*\=\s*'(.+?)'!;
+  return unless my ($var,$value) = $in =~ m!^(version|archname|osvers)\s*\=\s*'(.+?)'!;
   $self->{$var} = $value;
   return;
 }
@@ -81,7 +81,7 @@ sub _finished {
   delete $self->{pid};
   my $return = { };
   $return->{exitcode} = $code;
-  $return->{$_} = $self->{$_} for qw[version archname context];
+  $return->{$_} = $self->{$_} for qw[version archname osvers context];
   if ( ref $self->{session} and $self->{session}->isa('POE::Session::AnonEvent') ) {
     $self->{session}->( $return );
   }
@@ -104,7 +104,7 @@ App::SmokeBox::PerlVersion - SmokeBox helper module to determine perl version
 
 =head1 VERSION
 
-version 0.14
+version 0.16
 
 =head1 SYNOPSIS
 
@@ -136,13 +136,14 @@ version 0.14
     my $href = $_[ARG0];
     print "Perl version: ", $href->{version}, "\n";
     print "Built for:    ", $href->{archname}, "\n";
+    print "OS Version:   ", $href->{osvers}, "\n";
     return;
   }
 
 =head1 DESCRIPTION
 
 App::SmokeBox::PerlVersion is a simple helper module for L<App::SmokeBox::Mini> and
-L<minismokebox> that determines and version and architecture of a given C<perl>
+L<minismokebox> that determines version, architecture and OS version of a given C<perl>
 executable.
 
 =head1 CONSTRUCTOR
@@ -175,6 +176,7 @@ The hashref will contain the following keys:
   'exitcode', the exit code of the perl executable that was run;
   'version', the perl version string;
   'archname', the perl archname string;
+  'osvers', the OS version string;
   'context', whatever was passed to version();
 
 =head1 AUTHOR

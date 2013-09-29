@@ -24,4 +24,4 @@ requires:
 resources:
   homepage: https://github.com/bingos/app-smokebox-perlversion
   repository: https://github.com/bingos/app-smokebox-perlversion.git
-version: 0.14
+version: 0.16
